@@ -1,0 +1,125 @@
+/* loader */
+
+.loading,
+.loading body {
+  height: 100%;
+  width: 100%;
+}
+
+.loading body {
+  display: flex;
+  flex-direction: row;
+}
+
+#loader-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 100%;
+}
+
+#loader {
+  animation: loader 1s infinite ease-in-out;
+  -webkit-animation: loader 1s infinite ease-in-out;
+  animation-delay: -0.16s;
+  -webkit-animation-delay: -0.16s;
+  background: #e13833;
+  color: #e13833;
+  font-size: 6px;
+  height: 20px;
+  position: relative;
+  text-indent: -9999em;
+  transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  width: 1em;
+}
+
+#loader:before {
+  animation: loader 1s infinite ease-in-out;
+  -webkit-animation: loader 1s infinite ease-in-out;
+  animation-delay: -0.32s;
+  -webkit-animation-delay: -0.32s;
+  background: #e13833;
+  content: "";
+  height: 20px;
+  left: -1.5em;
+  position: absolute;
+  top: 0;
+  width: 1em;
+}
+
+#loader:after {
+  animation: loader 1s infinite ease-in-out;
+  -webkit-animation: loader 1s infinite ease-in-out;
+  animation-delay: 0.08s;
+  -webkit-animation-delay: 0.08s;
+  background: #e13833;
+  content: "";
+  height: 20px;
+  left: 1.5em;
+  position: absolute;
+  top: 0;
+  width: 1em;
+}
+
+/* header */
+
+header {
+  padding: 16px;
+}
+
+#network-label {
+  padding: 4px 15px;
+  background: #f6bbaf5e;
+  color: #e13833;
+  border-radius: 4px;
+  margin-right: 15px;
+}
+
+/* main */
+
+main {
+  width: 960px;
+  margin: 0 auto;
+  padding-top: 50px;
+}
+
+.row {
+  display: flex;
+  flex: 1;
+  width: 100%;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background: #f6bbaf5e;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px;
+}
+
+.col > div:nth-child(1) {
+  height: 50px;
+  font-size: 15px;
+}
+
+.col > div:nth-child(2) {
+  font-size: 22px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media only screen and (max-width: 700px) {
+  #network-label {
+    margin-right: 5px;
+  }
+
+  main {
+    padding-top: 30px;
+  }
+
+}

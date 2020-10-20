@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rebased Token Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Work+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/nprogress@0.2.0/nprogress.css"
+      rel="stylesheet"
+    />
+    <link href="style.base.css" rel="stylesheet" />
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <noscript> You need to enable JavaScript to run this app. </noscript>
+    <div id="loader-container">
+      <div id="loader"></div>
+    </div>
+
+    <div id="root-container" class="hidden">
+      <header class="flex items-center justify-space">
+        <h2 class="flex flex-grow items-center">
+          <img src="logo.png" alt="logo" width="30" height="30" />
+        </h2>
+
+        <div id="header-actions" class="flex items-center justify-space">
+          <div id="network-label" class="flex justify-center"></div>
+          <div id="address-label" class="flex justify-center"></div>
+          <div id="connect-button-container" class="flex justify-center hidden">
+            <button class="dark">Connect to Metamask</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex flex-col items-center">
+        <div class="row">
+          <div class="col">
+            <div>REBASE COOLDOWN</div>
+            <div></div>
+          </div>
+          <div class="col">
+            <div>REB2 PRICE</div>
+            <div></div>
+          </div>
+          <div class="col">
+            <div>REB2 SUPPLY</div>
+            <div>1000</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div></div>
+            <div><button disabled class="dark">REBASE</button></div>
+          </div>
+          <div class="col">
+            <div>PRICE TARGET</div>
+            <div>$1.00</div>
+          </div>
+          <div class="col">
+            <div>REB2 MARKET CAP</div>
+            <div>1000</div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/nprogress@0.2.0/nprogress.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="script.config.js"></script>
+    <script src="script.web3.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
