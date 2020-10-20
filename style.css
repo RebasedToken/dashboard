@@ -19,49 +19,46 @@
   height: 100%;
 }
 
-#loader {
+#loader,
+#loader:before,
+#loader:after {
   animation: loader 1s infinite ease-in-out;
   -webkit-animation: loader 1s infinite ease-in-out;
+  background: #e13833;
+  height: 15px;
+  width: 2em;
+  border-radius: 8px;
+}
+
+#loader {
   animation-delay: -0.16s;
   -webkit-animation-delay: -0.16s;
-  background: #e13833;
+  position: relative;
   color: #e13833;
   font-size: 6px;
-  height: 20px;
-  position: relative;
   text-indent: -9999em;
   transform: translateZ(0);
   -ms-transform: translateZ(0);
   -webkit-transform: translateZ(0);
-  width: 1em;
 }
 
 #loader:before {
-  animation: loader 1s infinite ease-in-out;
-  -webkit-animation: loader 1s infinite ease-in-out;
   animation-delay: -0.32s;
   -webkit-animation-delay: -0.32s;
-  background: #e13833;
-  content: "";
-  height: 20px;
-  left: -1.5em;
-  position: absolute;
-  top: 0;
-  width: 1em;
+  left: -3em;
 }
 
 #loader:after {
-  animation: loader 1s infinite ease-in-out;
-  -webkit-animation: loader 1s infinite ease-in-out;
   animation-delay: 0.08s;
   -webkit-animation-delay: 0.08s;
-  background: #e13833;
-  content: "";
-  height: 20px;
-  left: 1.5em;
+  left: 3em;
+}
+
+#loader:before,
+#loader:after {
   position: absolute;
   top: 0;
-  width: 1em;
+  content: "";
 }
 
 /* header */

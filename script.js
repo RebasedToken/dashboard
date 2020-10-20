@@ -16,7 +16,7 @@ const [
   rebaseButtonContainer,
   priceTargetContainer,
   reb2MarketCapContainer,
-] = Array.from(document.querySelectorAll(".col"))
+] = document.querySelectorAll(".col")
 
 const rebaseButton = rebaseButtonContainer.querySelector("button")
 
@@ -24,6 +24,7 @@ const contracts = {}
 let address
 let supply
 let price
+let cooldownTimer
 
 load()
 
@@ -56,7 +57,7 @@ async function loadAccount() {
   if (window.ethereum) {
     networkLabel.innerText = await window.WEB3.eth.net.getNetworkType()
 
-    const [addr] = await WEB3.eth.getAccounts();
+    const [addr] = await WEB3.eth.getAccounts()
     setAddress(addr)
   } else {
     setAddress()
@@ -91,15 +92,18 @@ async function loadCooldownStats() {
     "cooldownExpiryTimestamp",
     []
   )
-  setInterval(function () {
-    const ms = Date.now() - 1000 * cooldownExpiryTimestamp
-    const duration = toHumanizedDuration(ms)
-    rebaseCooldownContainer.querySelectorAll("div")[1].innerText = duration
+  if (cooldownTimer) clearInterval(cooldownTimer);
+  cooldownTimer = setInterval(function () {
+    const ms = 1000 * cooldownExpiryTimestamp - Date.now()
+    let duration
     if (ms < 0) {
-      rebaseButton.setAttribute("disabled", "disabled")
-    } else {
+      duration = "0d:0h:0m:0s"
       rebaseButton.removeAttribute("disabled")
+    } else {
+      duration = toHumanizedDuration(ms)
+      rebaseButton.setAttribute("disabled", "disabled")
     }
+    rebaseCooldownContainer.querySelectorAll("div")[1].innerText = duration
   })
 }
 
@@ -116,7 +120,7 @@ async function loadReb2Price() {
 
 async function loadReb2Supply() {
   supply = parseFloat(
-    Web3.utils.fromWei(await contracts.rebasedV2.read("totalSupply", []), "wei")
+    Web3.utils.fromWei(await contracts.rebasedV2.read("totalSupply", []), "gwei")
   )
   reb2SupplyContainer.querySelectorAll("div")[1].innerText = toHumanizedNumber(
     supply
@@ -130,38 +134,15 @@ async function loadReb2MarketCap() {
 }
 
 async function rebase() {
-  await Swal.fire({
-    confirmButtonText: "Rebase",
-    html:
-      '<input data-name="epoch" class="rebase-input swal2-input" placeholder="Enter epoch...">' +
-      '<input data-name="supply delta" class="rebase-input swal2-input" placeholder="Enter supply delta...">',
-    showLoaderOnConfirm: true,
-    preConfirm: async function () {
-      const vals = []
-      const inputs = Array.from(document.querySelectorAll(".rebase-input"))
-
-      for (let i = 0; i < inputs.length; i++) {
-        const input = inputs[i]
-        const val = parseInt(input.value || "")
-        if (!val)
-          return Swal.showValidationMessage(
-            input.dataset.name + " is required/invalid."
-          )
-        vals.push(val)
-      }
-
-      try {
-        await waitForTxn(await contracts.rebasedV2.write("rebase", vals), [])
-      } catch (e) {
-        return Swal.showValidationMessage(e.message)
-      }
-      sl("info", "Done!")
-    },
-    didOpen: function () {
-      document.querySelector(".rebase-input").focus()
-    },
-    showCancelButton: true,
-  })
+  try {
+    await waitForTxn(
+      await contracts.rebasedController.write("rebase")
+    )
+  } catch (e) {
+    return sl("error", e)
+  }
+  sl("info", "Done!")
+  loadCooldownStats()
 }
 
 function show(el) {
@@ -216,7 +197,7 @@ function toHumanizedDuration(ms) {
     {label: "m", mod: 60},
     {label: "h", mod: 24},
     {label: "d", mod: 31},
-    {label: "w", mod: 7},
+    // {label: "w", mod: 7},
   ]
   units.forEach(function (u) {
     ms = (ms - (dur[u.label] = ms % u.mod)) / u.mod
@@ -224,10 +205,14 @@ function toHumanizedDuration(ms) {
   return units
     .reverse()
     .filter(function (u) {
-      return u.label !== "ms" && dur[u.label]
+      return u.label !== "ms" // && dur[u.label]
     })
     .map(function (u) {
-      return dur[u.label] + u.label
+      let val = dur[u.label]
+      if (u.label === "m" || u.label === "s") {
+        val = val.toString().padStart(2, "0")
+      }
+      return val + u.label
     })
     .join(":")
 }
