@@ -181,9 +181,9 @@ button.dark:active {
 }
 
 .swal2-styled.swal2-confirm {
-  background: #e13833 !important; 
+  background: #e13833 !important;
 }
 
-.swal2-loader{
+.swal2-loader {
   border-color: #e13833 transparent #e13833 transparent !important;
 }

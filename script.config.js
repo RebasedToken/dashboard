@@ -3,3 +3,5 @@ const config = {
   rebasedController: "0xeA88f3132ACe8892f8Bf9DC4352C369b51553feE",
   rebasedOracle: "0x6680fa0e206ae96c0f852dbe5438b916580c272d",
 }
+
+const infura = "90b4177113144a0c82b2b64bc01950e1"

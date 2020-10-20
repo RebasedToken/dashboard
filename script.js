@@ -46,22 +46,21 @@ async function load() {
 }
 
 async function connectWeb3() {
-  if (!window.ethereum) {
-    return sl("error", "Please install Metamask browser extension.")
-  }
+  await requireWeb3()
   await ethereum.request({method: "eth_requestAccounts"})
   await loadAccount()
 }
 
 async function loadAccount() {
-  if (window.ethereum) {
-    networkLabel.innerText = await window.WEB3.eth.net.getNetworkType()
-
-    const [addr] = await WEB3.eth.getAccounts()
-    setAddress(addr)
-  } else {
-    setAddress()
+  const network = networkLabel.innerText = await window.WEB3.eth.net.getNetworkType()
+  if (network !== 'main') {
+    completeBootLoader();
+    return sl('error', 'Please switch to mainnet');
   }
+
+  const [addr] = await WEB3.eth.getAccounts()
+  setAddress(addr)
+
   completeBootLoader()
   loadStats()
 }
@@ -92,7 +91,7 @@ async function loadCooldownStats() {
     "cooldownExpiryTimestamp",
     []
   )
-  if (cooldownTimer) clearInterval(cooldownTimer);
+  if (cooldownTimer) clearInterval(cooldownTimer)
   cooldownTimer = setInterval(function () {
     const ms = 1000 * cooldownExpiryTimestamp - Date.now()
     let duration
@@ -120,7 +119,10 @@ async function loadReb2Price() {
 
 async function loadReb2Supply() {
   supply = parseFloat(
-    Web3.utils.fromWei(await contracts.rebasedV2.read("totalSupply", []), "gwei")
+    Web3.utils.fromWei(
+      await contracts.rebasedV2.read("totalSupply", []),
+      "gwei"
+    )
   )
   reb2SupplyContainer.querySelectorAll("div")[1].innerText = toHumanizedNumber(
     supply
@@ -134,10 +136,9 @@ async function loadReb2MarketCap() {
 }
 
 async function rebase() {
+  await requireWeb3(true)
   try {
-    await waitForTxn(
-      await contracts.rebasedController.write("rebase")
-    )
+    await waitForTxn(await contracts.rebasedController.write("rebase"))
   } catch (e) {
     return sl("error", e)
   }
@@ -170,6 +171,18 @@ function attr(el, attribute, val) {
     el.setAttribute(attribute, val)
   } else {
     el.removeAttribute(attribute)
+  }
+}
+
+async function requireWeb3(addr) {
+  if (!window.ethereum) {
+    const e = new Error("Please install Metamask browser extension.")
+    sl("error", e)
+    throw e
+  }
+  if (addr && !address) {
+    const [addr] = await ethereum.request({method: "eth_requestAccounts"})
+    setAddress(addr)
   }
 }
 
@@ -220,6 +233,13 @@ function toHumanizedDuration(ms) {
 async function sleep(ms) {
   return await new Promise(function (resolve) {
     return setTimeout(resolve, ms)
+  })
+}
+
+function sl(type, msg) {
+  Swal.fire({
+    icon: type,
+    text: msg,
   })
 }
 
