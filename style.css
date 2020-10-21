@@ -92,6 +92,7 @@ main {
 .col {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   flex: 1;
   background: #f6bbaf5e;
   border-radius: 4px;
