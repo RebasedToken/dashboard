@@ -155,20 +155,45 @@ async function setupCharts() {
       ? "http://localhost:5000"
       : "http://199.192.22.187:5000"
   )
-  loadPriceChart()
-}
 
-function loadPriceChart() {
-  const data = chartData.price
-
-  const container = document.getElementById("price-chart")
-  const groups = container.querySelectorAll(".chart-toggle-buttons")
   const current = {
     type: "abs",
-    duration: groups[0].querySelector("div").dataset.duration,
+    duration: "1d",
   }
-  const {x} = data[current.duration]
-  const y = data[current.duration][current.type]
+
+  const charts = [
+    setupChart("price-chart", current, true, ({x, p}) => {
+      return {x, p}
+    }),
+    setupChart("supply-chart", current, false, ({x, s: p}) => {
+      return {x, p}
+    }),
+    setupChart("mkt-cap-chart", current, true, ({x, s, p}) => {
+      const y = s.map((a, i) => parseFloat(a) + parseFloat(p[i]))
+      return {x, p: y}
+    }),
+  ]
+
+  for (const kind in current) {
+    const buttons = document.body.querySelectorAll(
+      `.chart-toggle-buttons > [data-${kind}]`
+    )
+    buttons.forEach((button) => {
+      button.addEventListener("click", function () {
+        buttons.forEach(function (b) {
+          b.classList.toggle("active", b.dataset[kind] === button.dataset[kind])
+        })
+        current[kind] = button.dataset[kind]
+        charts.forEach((fn) => fn(current))
+      })
+    })
+  }
+}
+
+function setupChart(chartId, current, label, map) {
+  const container = document.getElementById(chartId)
+
+  const {x, y} = dataTransform(current)
   const config = {
     type: "line",
     data: {
@@ -202,13 +227,12 @@ function loadPriceChart() {
             display: true,
             lineTension: 0.000001,
             ticks: {
-              callback: function (value, index, values) {
-                return current.type === "abs"
-                  ? "$" +
-                      toHumanizedCurrency(
-                        Web3.utils.fromWei(value.toString(), "ether")
-                      )
-                  : value + "%"
+              callback: function (val, index, values) {
+                return !label
+                  ? val
+                  : current.type === "abs"
+                  ? "$" + toHumanizedCurrency(val)
+                  : val + "%"
               },
             },
           },
@@ -217,11 +241,12 @@ function loadPriceChart() {
       tooltips: {
         callbacks: {
           label: function (tooltipItem, data) {
-            return current.type === "abs"
-              ? "$" + toHumanizedCurrency(
-                  Web3.utils.fromWei(tooltipItem.yLabel.toString(), "ether")
-                )
-              : tooltipItem.yLabel + "%"
+            const val = tooltipItem.yLabel
+            return !label
+              ? val
+              : current.type === "abs"
+              ? "$" + toHumanizedCurrency(val)
+              : val + "%"
           },
         },
       },
@@ -231,27 +256,32 @@ function loadPriceChart() {
   const ctx = container.querySelector("canvas").getContext("2d")
   const chart = new Chart(ctx, config)
 
-  groups.forEach(function (group, i) {
-    const kind = group.dataset.kind
-    const buttons = group.querySelectorAll("div")
-    buttons.forEach((button) => {
-      button.addEventListener("click", function () {
-        buttons.forEach(function (b) {
-          b.classList.toggle("active", b === button)
-        })
-        current[kind] = button.dataset[kind]
-        updateChart()
-      })
-    })
-  })
-
   function updateChart() {
-    const {x} = data[current.duration]
-    const y = data[current.duration][current.type]
+    const {x, y} = dataTransform(current)
     chart.data.labels = x
     chart.data.datasets[0].data = y
     chart.update()
   }
+
+  function dataTransform({type, duration}) {
+    const data = chartData[duration]
+    const {x, p} = map(data)
+    if (type === "%") {
+      const y = []
+      for (let i = 1; i < p.length; i++) {
+        const a = parseFloat(p[i])
+        const b = parseFloat(p[i - 1])
+        y.push(!a ? "0" : (100 * ((a - b) / a)).toFixed(2))
+      }
+      const _x = x.concat()
+      _x.shift()
+      return {x: _x, y}
+    } else {
+      return {x, y: p}
+    }
+  }
+
+  return updateChart
 }
 
 function show(el) {
@@ -308,6 +338,10 @@ function toHumanizedCurrency(val) {
   return new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"})
     .format(val)
     .replace("$", "")
+}
+
+function bn(n) {
+  return window.WEB3.utils.toBN(n)
 }
 
 function toHumanizedDuration(ms) {

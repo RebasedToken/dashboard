@@ -70,12 +70,49 @@
             <div></div>
           </div>
         </div>
+
         <div id="price-chart">
           <div class='chart-heading'>PRICE</div>
           <div class='flex'>
             <div class='chart-toggle-buttons' data-kind="duration">
               <div class='active' data-duration='1d'>1 DAY</div>
               <div data-duration='30d'>30 DAYS</div>
+              <div data-duration='all'>ALL</div>
+            </div>
+            <div class='chart-toggle-buttons ml' data-kind="type">
+              <div class='active' data-type='abs'>ABS</div>
+              <div data-type='%'>%</div>
+            </div>
+          </div>
+          <div class="full-width chart">
+            <canvas id="canvas"></canvas>
+          </div>
+        </div>
+
+        <div id="supply-chart">
+          <div class='chart-heading'>SUPPLY</div>
+          <div class='flex'>
+            <div class='chart-toggle-buttons' data-kind="duration">
+              <div class='active' data-duration='1d'>1 DAY</div>
+              <div data-duration='30d'>30 DAYS</div>
+              <div data-duration='all'>ALL</div>
+            </div>
+            <div class='chart-toggle-buttons ml' data-kind="type">
+              <div class='active' data-type='abs'>ABS</div>
+              <div data-type='%'>%</div>
+            </div>
+          </div>
+          <div class="full-width chart">
+            <canvas id="canvas"></canvas>
+          </div>
+        </div>
+
+        <div id="mkt-cap-chart">
+          <div class='chart-heading'>MARKET CAP</div>
+          <div class='flex'>
+            <div class='chart-toggle-buttons' data-kind="duration">
+              <div class='active' data-duration='1d'>1 DAY</div>
+              <div data-duration='5d'>5 DAYS</div>
               <div data-duration='all'>ALL</div>
             </div>
             <div class='chart-toggle-buttons ml' data-kind="type">
