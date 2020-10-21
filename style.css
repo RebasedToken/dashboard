@@ -97,15 +97,8 @@ main {
   background: #f6bbaf5e;
   border-radius: 4px;
   padding: 10px;
-  margin: 10px 0;
-}
-
-.ml {
-  margin-left: 10px;
-}
-
-.mr {
-  margin-right: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .col > div:nth-child(1) {
@@ -117,6 +110,10 @@ main {
   font-size: 22px;
   display: flex;
   justify-content: flex-end;
+}
+
+.chart-container {
+  margin-top: 20px;
 }
 
 .chart-heading {
@@ -162,5 +159,15 @@ main {
 
   main {
     padding-top: 30px;
+    width: auto;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .col,
+  .chart-container  {
+    margin: 10px !important;
   }
 }
