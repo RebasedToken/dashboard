@@ -149,7 +149,12 @@ async function rebase() {
 }
 
 async function setupCharts() {
-  chartData = await xhr("get", "http://localhost:5000")
+  chartData = await xhr(
+    "get",
+    ~window.location.href.indexOf("local")
+      ? "http://localhost:5000"
+      : "http://199.192.22.187:5000"
+  )
   loadPriceChart()
 }
 

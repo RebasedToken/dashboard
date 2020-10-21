@@ -10,6 +10,10 @@ else
 	@surge -d https://rebased-token-dashboard-$(branch).surge.sh -p .
 endif
 
+pm2:
+	@./node_modules/.bin/pm2 start ecosystem.config.js
+
 .PHONY: \
 	deploy \
-	www
+	www \
+	pm2
