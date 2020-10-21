@@ -173,7 +173,7 @@ async function setupCharts() {
       return {x, p: y}
     }),
   ]
-
+  
   for (const kind in current) {
     const buttons = document.body.querySelectorAll(
       `.chart-toggle-buttons > [data-${kind}]`
