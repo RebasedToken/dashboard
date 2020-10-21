@@ -25,13 +25,14 @@ let address
 let supply
 let price
 let cooldownTimer
+let chartData
 
-load()
+window.onload = load
 
 async function load() {
   registerWeb3()
   await Promise.all(
-    Object.entries(config).map(function ([name, address]) {
+    Object.entries(CONTRACTS).map(function ([name, address]) {
       const contract = (contracts[name] = new Contract())
       return contract.setContract(name, address)
     })
@@ -52,10 +53,10 @@ async function connectWeb3() {
 }
 
 async function loadAccount() {
-  const network = networkLabel.innerText = await window.WEB3.eth.net.getNetworkType()
-  if (network !== 'main') {
-    completeBootLoader();
-    return sl('error', 'Please switch to mainnet');
+  const network = (networkLabel.innerText = await window.WEB3.eth.net.getNetworkType())
+  if (network !== "main") {
+    completeBootLoader()
+    return sl("error", "Please switch to mainnet")
   }
 
   const [addr] = await WEB3.eth.getAccounts()
@@ -81,6 +82,7 @@ async function setAddress(addr) {
 }
 
 async function loadStats() {
+  setupCharts()
   loadCooldownStats()
   await Promise.all([loadReb2Price(), loadReb2Supply()])
   loadReb2MarketCap()
@@ -144,6 +146,101 @@ async function rebase() {
   }
   sl("info", "Done!")
   loadCooldownStats()
+}
+
+async function setupCharts() {
+  chartData = await xhr("get", "http://localhost:5000")
+  loadPriceChart()
+}
+
+function loadPriceChart() {
+  const data = chartData.price
+
+  const current = {type: "abs", duration: "30d"}
+
+  const container = document.getElementById("price-chart")
+  const {x, y} = data[current.type][current.duration]
+  const config = {
+    type: "line",
+    data: {
+      labels: x,
+      datasets: [
+        {
+          label: "Price",
+          backgroundColor: COLORS.lightred,
+          borderColor: COLORS.lightred,
+          fill: "start",
+          data: y,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      title: {
+        display: false,
+      },
+      legend: {
+        display: false,
+      },
+      scales: {
+        xAxes: [
+          {
+            display: true,
+          },
+        ],
+        yAxes: [
+          {
+            display: true,
+            lineTension: 0.000001,
+            ticks: {
+              callback: function (value, index, values) {
+                return (
+                  "$" +
+                  toHumanizedCurrency(
+                    Web3.utils.fromWei(value.toString(), "ether")
+                  )
+                )
+              },
+            },
+          },
+        ],
+      },
+      tooltips: {
+        callbacks: {
+          label: function (tooltipItem, data) {
+            return toHumanizedCurrency(
+              Web3.utils.fromWei(tooltipItem.yLabel.toString(), "ether")
+            )
+          },
+        },
+      },
+    },
+  }
+
+  const ctx = container.querySelector("canvas").getContext("2d")
+  const chart = new Chart(ctx, config)
+
+  const groups = container.querySelectorAll(".chart-toggle-buttons")
+  groups.forEach(function (group, i) {
+    const kind = group.dataset.kind
+    const buttons = group.querySelectorAll("div")
+    buttons.forEach((button) => {
+      button.addEventListener("click", function () {
+        buttons.forEach(function (b) {
+          b.classList.toggle("active", b === button)
+        })
+        current[kind] = button.dataset[kind]
+        updateChart()
+      })
+    })
+  })
+
+  function updateChart() {
+    const {x, y} = data[current.type][current.duration]
+    chart.data.labels = x
+    chart.data.datasets[0].data = y
+    chart.update()
+  }
 }
 
 function show(el) {

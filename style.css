@@ -96,7 +96,15 @@ main {
   background: #f6bbaf5e;
   border-radius: 4px;
   padding: 10px;
-  margin: 10px;
+  margin: 10px 0;
+}
+
+.ml {
+  margin-left: 10px;
+}
+
+.mr {
+  margin-right: 10px;
 }
 
 .col > div:nth-child(1) {
@@ -108,6 +116,42 @@ main {
   font-size: 22px;
   display: flex;
   justify-content: flex-end;
+}
+
+.chart-heading {
+  margin-top: 20px;
+}
+
+.chart-toggle-buttons {
+  margin-top: 20px;
+  display: flex;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.chart-toggle-buttons > div {
+  padding: 5px 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.chart-toggle-buttons > div:not(:last-child) {
+  border-right: 1px solid #eee;
+}
+
+.chart-toggle-buttons .active {
+  background: #eee;
+}
+
+.chart {
+  margin-top: 20px;
+  /* 
+  height: 350px;
+  max-width: 350px;
+  */
 }
 
 @media only screen and (max-width: 700px) {
