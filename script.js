@@ -161,10 +161,14 @@ async function setupCharts() {
 function loadPriceChart() {
   const data = chartData.price
 
-  const current = {type: "abs", duration: "30d"}
-
   const container = document.getElementById("price-chart")
-  const {x, y} = data[current.type][current.duration]
+  const groups = container.querySelectorAll(".chart-toggle-buttons")
+  const current = {
+    type: "abs",
+    duration: groups[0].querySelector("div").dataset.duration,
+  }
+  const {x} = data[current.duration]
+  const y = data[current.duration][current.type]
   const config = {
     type: "line",
     data: {
@@ -199,12 +203,12 @@ function loadPriceChart() {
             lineTension: 0.000001,
             ticks: {
               callback: function (value, index, values) {
-                return (
-                  "$" +
-                  toHumanizedCurrency(
-                    Web3.utils.fromWei(value.toString(), "ether")
-                  )
-                )
+                return current.type === "abs"
+                  ? "$" +
+                      toHumanizedCurrency(
+                        Web3.utils.fromWei(value.toString(), "ether")
+                      )
+                  : value + "%"
               },
             },
           },
@@ -213,9 +217,11 @@ function loadPriceChart() {
       tooltips: {
         callbacks: {
           label: function (tooltipItem, data) {
-            return toHumanizedCurrency(
-              Web3.utils.fromWei(tooltipItem.yLabel.toString(), "ether")
-            )
+            return current.type === "abs"
+              ? "$" + toHumanizedCurrency(
+                  Web3.utils.fromWei(tooltipItem.yLabel.toString(), "ether")
+                )
+              : tooltipItem.yLabel + "%"
           },
         },
       },
@@ -225,7 +231,6 @@ function loadPriceChart() {
   const ctx = container.querySelector("canvas").getContext("2d")
   const chart = new Chart(ctx, config)
 
-  const groups = container.querySelectorAll(".chart-toggle-buttons")
   groups.forEach(function (group, i) {
     const kind = group.dataset.kind
     const buttons = group.querySelectorAll("div")
@@ -241,7 +246,8 @@ function loadPriceChart() {
   })
 
   function updateChart() {
-    const {x, y} = data[current.type][current.duration]
+    const {x} = data[current.duration]
+    const y = data[current.duration][current.type]
     chart.data.labels = x
     chart.data.datasets[0].data = y
     chart.update()
