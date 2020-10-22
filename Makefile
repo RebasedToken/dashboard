@@ -1,5 +1,4 @@
 BRANCH=$(shell git symbolic-ref --short HEAD)
-ENV?=development
 
 www:
 	@python2 -m SimpleHTTPServer 8000
@@ -12,7 +11,7 @@ else
 endif
 
 pm2:
-	@./node_modules/.bin/pm2 start ecosystem.config.js --env $(ENV)
+	@./node_modules/.bin/pm2 start ecosystem.config.js
 
 .PHONY: \
 	deploy \
