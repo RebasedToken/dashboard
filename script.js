@@ -153,7 +153,7 @@ async function setupCharts() {
     "get",
     ~window.location.href.indexOf("local")
       ? "http://localhost:5000"
-      : "http://199.192.22.187:5000"
+      : "http://199.192.22.187"
   )
 
   const current = {
@@ -173,7 +173,7 @@ async function setupCharts() {
       return {x, p: y}
     }),
   ]
-  
+
   for (const kind in current) {
     const buttons = document.body.querySelectorAll(
       `.chart-toggle-buttons > [data-${kind}]`

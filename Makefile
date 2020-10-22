@@ -1,17 +1,18 @@
-branch=$(shell git symbolic-ref --short HEAD)
+BRANCH=$(shell git symbolic-ref --short HEAD)
+ENV?=development
 
 www:
 	@python2 -m SimpleHTTPServer 8000
 
 deploy:
-ifeq ($(branch), master)
+ifeq ($(BRANCH), master)
 	@surge -d https://rebased-token-dashboard.surge.sh -p .
 else
-	@surge -d https://rebased-token-dashboard-$(branch).surge.sh -p .
+	@surge -d https://rebased-token-dashboard-$(BRANCH).surge.sh -p .
 endif
 
 pm2:
-	@./node_modules/.bin/pm2 start ecosystem.config.js
+	@./node_modules/.bin/pm2 start ecosystem.config.js --env $(ENV)
 
 .PHONY: \
 	deploy \
