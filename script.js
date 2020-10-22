@@ -25,13 +25,14 @@ let address
 let supply
 let price
 let cooldownTimer
+let chartData
 
-load()
+window.onload = load
 
 async function load() {
   registerWeb3()
   await Promise.all(
-    Object.entries(config).map(function ([name, address]) {
+    Object.entries(CONTRACTS).map(function ([name, address]) {
       const contract = (contracts[name] = new Contract())
       return contract.setContract(name, address)
     })
@@ -52,10 +53,10 @@ async function connectWeb3() {
 }
 
 async function loadAccount() {
-  const network = networkLabel.innerText = await window.WEB3.eth.net.getNetworkType()
-  if (network !== 'main') {
-    completeBootLoader();
-    return sl('error', 'Please switch to mainnet');
+  const network = (networkLabel.innerText = await window.WEB3.eth.net.getNetworkType())
+  if (network !== "main") {
+    completeBootLoader()
+    return sl("error", "Please switch to mainnet")
   }
 
   const [addr] = await WEB3.eth.getAccounts()
@@ -81,6 +82,7 @@ async function setAddress(addr) {
 }
 
 async function loadStats() {
+  setupCharts()
   loadCooldownStats()
   await Promise.all([loadReb2Price(), loadReb2Supply()])
   loadReb2MarketCap()
@@ -146,6 +148,142 @@ async function rebase() {
   loadCooldownStats()
 }
 
+async function setupCharts() {
+  chartData = await xhr(
+    "get",
+    ~window.location.href.indexOf("local")
+      ? "http://localhost:5000"
+      : "http://199.192.22.187"
+  )
+
+  const current = {
+    type: "abs",
+    duration: "1d",
+  }
+
+  const charts = [
+    setupChart("price-chart", current, true, ({x, p}) => {
+      return {x, p}
+    }),
+    setupChart("supply-chart", current, false, ({x, s: p}) => {
+      return {x, p}
+    }),
+    setupChart("mkt-cap-chart", current, true, ({x, s, p}) => {
+      const y = s.map((a, i) => parseFloat(a) + parseFloat(p[i]))
+      return {x, p: y}
+    }),
+  ]
+
+  for (const kind in current) {
+    const buttons = document.body.querySelectorAll(
+      `.chart-toggle-buttons > [data-${kind}]`
+    )
+    buttons.forEach((button) => {
+      button.addEventListener("click", function () {
+        buttons.forEach(function (b) {
+          b.classList.toggle("active", b.dataset[kind] === button.dataset[kind])
+        })
+        current[kind] = button.dataset[kind]
+        charts.forEach((fn) => fn(current))
+      })
+    })
+  }
+}
+
+function setupChart(chartId, current, label, map) {
+  const container = document.getElementById(chartId)
+
+  const {x, y} = dataTransform(current)
+  const config = {
+    type: "line",
+    data: {
+      labels: x,
+      datasets: [
+        {
+          label: "Price",
+          backgroundColor: COLORS.lightred,
+          borderColor: COLORS.lightred,
+          fill: "start",
+          data: y,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      title: {
+        display: false,
+      },
+      legend: {
+        display: false,
+      },
+      scales: {
+        xAxes: [
+          {
+            display: true,
+          },
+        ],
+        yAxes: [
+          {
+            display: true,
+            lineTension: 0.000001,
+            ticks: {
+              callback: function (val, index, values) {
+                return !label
+                  ? val
+                  : current.type === "abs"
+                  ? "$" + toHumanizedCurrency(val)
+                  : val + "%"
+              },
+            },
+          },
+        ],
+      },
+      tooltips: {
+        callbacks: {
+          label: function (tooltipItem, data) {
+            const val = tooltipItem.yLabel
+            return !label
+              ? val
+              : current.type === "abs"
+              ? "$" + toHumanizedCurrency(val)
+              : val + "%"
+          },
+        },
+      },
+    },
+  }
+
+  const ctx = container.querySelector("canvas").getContext("2d")
+  const chart = new Chart(ctx, config)
+
+  function updateChart() {
+    const {x, y} = dataTransform(current)
+    chart.data.labels = x
+    chart.data.datasets[0].data = y
+    chart.update()
+  }
+
+  function dataTransform({type, duration}) {
+    const data = chartData[duration]
+    const {x, p} = map(data)
+    if (type === "%") {
+      const y = []
+      for (let i = 1; i < p.length; i++) {
+        const a = parseFloat(p[i])
+        const b = parseFloat(p[i - 1])
+        y.push(!a ? "0" : (100 * ((a - b) / a)).toFixed(2))
+      }
+      const _x = x.concat()
+      _x.shift()
+      return {x: _x, y}
+    } else {
+      return {x, y: p}
+    }
+  }
+
+  return updateChart
+}
+
 function show(el) {
   toggle(el, true)
 }
@@ -200,6 +338,10 @@ function toHumanizedCurrency(val) {
   return new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"})
     .format(val)
     .replace("$", "")
+}
+
+function bn(n) {
+  return window.WEB3.utils.toBN(n)
 }
 
 function toHumanizedDuration(ms) {

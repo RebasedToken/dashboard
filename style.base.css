@@ -187,3 +187,19 @@ button.dark:active {
 .swal2-loader {
   border-color: #e13833 transparent #e13833 transparent !important;
 }
+
+.ml {
+  margin-left: 10px;
+}
+
+.mr {
+  margin-right: 10px;
+}
+
+.mt {
+  margin-top: 10px;
+}
+
+.mb {
+  margin-bottom: 10px;
+}

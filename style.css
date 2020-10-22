@@ -92,11 +92,13 @@ main {
 .col {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   flex: 1;
   background: #f6bbaf5e;
   border-radius: 4px;
   padding: 10px;
-  margin: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .col > div:nth-child(1) {
@@ -110,6 +112,46 @@ main {
   justify-content: flex-end;
 }
 
+.chart-container {
+  margin-top: 20px;
+}
+
+.chart-heading {
+  margin-top: 20px;
+}
+
+.chart-toggle-buttons {
+  margin-top: 20px;
+  display: flex;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.chart-toggle-buttons > div {
+  padding: 5px 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.chart-toggle-buttons > div:not(:last-child) {
+  border-right: 1px solid #eee;
+}
+
+.chart-toggle-buttons .active {
+  background: #eee;
+}
+
+.chart {
+  margin-top: 20px;
+  /* 
+  height: 350px;
+  max-width: 350px;
+  */
+}
+
 @media only screen and (max-width: 700px) {
   #network-label {
     margin-right: 5px;
@@ -117,5 +159,15 @@ main {
 
   main {
     padding-top: 30px;
+    width: auto;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .col,
+  .chart-container  {
+    margin: 10px !important;
   }
 }
