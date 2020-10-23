@@ -153,7 +153,7 @@ async function setupCharts() {
     "get",
     ~window.location.href.indexOf("local")
       ? "http://localhost:5000"
-      : "http://199.192.22.187"
+      : "http://server1.rebased.fi:5000"
   )
 
   const current = {
