@@ -267,15 +267,13 @@ function setupChart(chartId, current, label, map) {
     const data = chartData[duration]
     const {x, p} = map(data)
     if (type === "%") {
-      const y = []
+      const y = ["0"]
       for (let i = 1; i < p.length; i++) {
         const a = parseFloat(p[i])
         const b = parseFloat(p[i - 1])
         y.push(!a ? "0" : (100 * ((a - b) / a)).toFixed(2))
       }
-      const _x = x.concat()
-      _x.shift()
-      return {x: _x, y}
+      return {x, y}
     } else {
       return {x, y: p}
     }
