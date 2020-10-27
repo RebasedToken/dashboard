@@ -80,7 +80,7 @@ header {
 main {
   width: 960px;
   margin: 0 auto;
-  padding-top: 50px;
+  padding: 50px 0;
 }
 
 .row {

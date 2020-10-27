@@ -152,7 +152,7 @@ async function setupCharts() {
   chartData = await xhr(
     "get",
     ~window.location.href.indexOf("local")
-      ? "http://localhost:5000"
+      ? "http://localhost:5050"
       : "https://rebased.fi/api"
   )
 
