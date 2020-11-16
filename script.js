@@ -120,15 +120,8 @@ async function loadReb2Price() {
 }
 
 async function loadReb2Supply() {
-  supply = parseFloat(
-    Web3.utils.fromWei(
-      await contracts.rebasedV2.read("totalSupply", []),
-      "gwei"
-    )
-  )
-  reb2SupplyContainer.querySelectorAll("div")[1].innerText = toHumanizedNumber(
-    supply
-  )
+  supply = (await api('get', '/total-supply')).totalSupply;
+  reb2SupplyContainer.querySelectorAll("div")[1].innerText = toHumanizedNumber(supply)
 }
 
 async function loadReb2MarketCap() {
@@ -149,12 +142,7 @@ async function rebase() {
 }
 
 async function setupCharts() {
-  chartData = await xhr(
-    "get",
-    ~window.location.href.indexOf("local")
-      ? "http://localhost:5050"
-      : "https://rebased.fi/api"
-  )
+  chartData = await api("get", "/")
 
   const current = {
     type: "abs",
@@ -329,7 +317,7 @@ function completeBootLoader() {
 }
 
 function toHumanizedNumber(val) {
-  return val.toLocaleString("en-US", {maximumFractionDigits: 2})
+  return val.toLocaleString("en-US", {maximumFractionDigits: 2, minimumFractionDigits: 2})
 }
 
 function toHumanizedCurrency(val) {
@@ -381,6 +369,21 @@ function sl(type, msg) {
     icon: type,
     text: msg,
   })
+}
+
+function getBurntAmount() {
+  return contracts.rebasedV2.read("balanceOf", ["0x000000000000000000000000000000000000dead"]);
+}
+
+async function api(method, endpoint, data) {
+  NProgress.start()
+  NProgress.set(0.4)
+
+  endpoint = (~window.location.href.indexOf("local")
+  ? "http://localhost:5050"
+  : "https://rebased.fi/api") + endpoint;
+
+  return xhr(method, endpoint, data);
 }
 
 async function xhr(method, endpoint, data) {
