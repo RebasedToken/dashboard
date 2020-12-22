@@ -3,7 +3,7 @@ function registerWeb3() {
     window.ethereum
       ? window.web3.currentProvider
       : new Web3.providers.HttpProvider(
-          "https://mainnet.infura.io/v3/" + INFURA
+        WEB3_PROVIDER
         )
   )
 }

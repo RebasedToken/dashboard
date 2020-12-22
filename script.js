@@ -1,13 +1,13 @@
-const rootContainer = document.getElementById("root-container")
-const loaderContainer = document.getElementById("loader-container")
+const rootContainer = document.getElementById('root-container')
+const loaderContainer = document.getElementById('loader-container')
 
 const connectButtonContainer = document.getElementById(
-  "connect-button-container"
+  'connect-button-container'
 )
-const connectButton = connectButtonContainer.querySelector("button")
+const connectButton = connectButtonContainer.querySelector('button')
 
-const networkLabel = document.getElementById("network-label")
-const addressLabel = document.getElementById("address-label")
+const networkLabel = document.getElementById('network-label')
+const addressLabel = document.getElementById('address-label')
 
 const [
   rebaseCooldownContainer,
@@ -16,9 +16,9 @@ const [
   rebaseButtonContainer,
   priceTargetContainer,
   reb2MarketCapContainer,
-] = document.querySelectorAll(".col")
+] = document.querySelectorAll('.col')
 
-const rebaseButton = rebaseButtonContainer.querySelector("button")
+const rebaseButton = rebaseButtonContainer.querySelector('button')
 
 const contracts = {}
 let address
@@ -37,10 +37,10 @@ async function load() {
       return contract.setContract(name, address)
     })
   )
-  connectButton.addEventListener("click", function () {
+  connectButton.addEventListener('click', function () {
     connectWeb3()
   })
-  rebaseButton.addEventListener("click", function () {
+  rebaseButton.addEventListener('click', function () {
     rebase()
   })
   await loadAccount()
@@ -48,15 +48,15 @@ async function load() {
 
 async function connectWeb3() {
   await requireWeb3()
-  await ethereum.request({method: "eth_requestAccounts"})
+  await ethereum.request({method: 'eth_requestAccounts'})
   await loadAccount()
 }
 
 async function loadAccount() {
   const network = (networkLabel.innerText = await window.WEB3.eth.net.getNetworkType())
-  if (network !== "main") {
+  if (network !== 'main') {
     completeBootLoader()
-    return sl("error", "Please switch to mainnet")
+    return sl('error', 'Please switch to mainnet')
   }
 
   const [addr] = await WEB3.eth.getAccounts()
@@ -90,7 +90,7 @@ async function loadStats() {
 
 async function loadCooldownStats() {
   const cooldownExpiryTimestamp = await contracts.rebasedController.read(
-    "cooldownExpiryTimestamp",
+    'cooldownExpiryTimestamp',
     []
   )
   if (cooldownTimer) clearInterval(cooldownTimer)
@@ -98,65 +98,70 @@ async function loadCooldownStats() {
     const ms = 1000 * cooldownExpiryTimestamp - Date.now()
     let duration
     if (ms < 0) {
-      duration = "0d:0h:0m:0s"
-      rebaseButton.removeAttribute("disabled")
+      duration = '0d:0h:0m:0s'
+      rebaseButton.removeAttribute('disabled')
     } else {
       duration = toHumanizedDuration(ms)
-      rebaseButton.setAttribute("disabled", "disabled")
+      rebaseButton.setAttribute('disabled', 'disabled')
     }
-    rebaseCooldownContainer.querySelectorAll("div")[1].innerText = duration
+    rebaseCooldownContainer.querySelectorAll('div')[1].innerText = duration
   })
 }
 
 async function loadReb2Price() {
   price = parseFloat(
     Web3.utils.fromWei(
-      await contracts.rebasedOracle.read("getData", []),
-      "ether"
+      await contracts.rebasedOracle.read('getData', []),
+      'ether'
     )
   )
-  reb2PriceContainer.querySelectorAll("div")[1].innerText =
-    "$" + toHumanizedCurrency(price)
+  reb2PriceContainer.querySelectorAll('div')[1].innerText =
+    '$' + toHumanizedCurrency(price)
 }
 
 async function loadReb2Supply() {
-  supply = (await api('get', '/total-supply')).totalSupply;
-  reb2SupplyContainer.querySelectorAll("div")[1].innerText = toHumanizedNumber(supply)
+  supply = Web3.utils.fromWei(
+    (await api('get', '/total-supply')).totalSupply,
+    'gwei'
+  )
+  reb2SupplyContainer.querySelectorAll(
+    'div'
+  )[1].innerText = toHumanizedCurrency(supply)
 }
 
 async function loadReb2MarketCap() {
   const mktCap = price * supply
-  reb2MarketCapContainer.querySelectorAll("div")[1].innerText =
-    "$" + toHumanizedCurrency(mktCap)
+  reb2MarketCapContainer.querySelectorAll('div')[1].innerText =
+    '$' + toHumanizedCurrency(mktCap)
 }
 
 async function rebase() {
   await requireWeb3(true)
   try {
-    await waitForTxn(await contracts.rebasedController.write("rebase"))
+    await waitForTxn(await contracts.rebasedController.write('rebase'))
   } catch (e) {
-    return sl("error", e)
+    return sl('error', e)
   }
-  sl("info", "Done!")
+  sl('info', 'Done!')
   loadCooldownStats()
 }
 
 async function setupCharts() {
-  chartData = await api("get", "/")
+  chartData = await api('get', '/')
 
   const current = {
-    type: "abs",
-    duration: "1d",
+    type: 'abs',
+    duration: '1d',
   }
 
   const charts = [
-    setupChart("price-chart", current, true, ({x, p}) => {
+    setupChart('price-chart', current, true, ({x, p}) => {
       return {x, p}
     }),
-    setupChart("supply-chart", current, false, ({x, s: p}) => {
+    setupChart('supply-chart', current, false, ({x, s: p}) => {
       return {x, p}
     }),
-    setupChart("mkt-cap-chart", current, true, ({x, s, p}) => {
+    setupChart('mkt-cap-chart', current, true, ({x, s, p}) => {
       const y = s.map((a, i) => parseFloat(a) + parseFloat(p[i]))
       return {x, p: y}
     }),
@@ -167,9 +172,9 @@ async function setupCharts() {
       `.chart-toggle-buttons > [data-${kind}]`
     )
     buttons.forEach((button) => {
-      button.addEventListener("click", function () {
+      button.addEventListener('click', function () {
         buttons.forEach(function (b) {
-          b.classList.toggle("active", b.dataset[kind] === button.dataset[kind])
+          b.classList.toggle('active', b.dataset[kind] === button.dataset[kind])
         })
         current[kind] = button.dataset[kind]
         charts.forEach((fn) => fn(current))
@@ -183,15 +188,15 @@ function setupChart(chartId, current, label, map) {
 
   const {x, y} = dataTransform(current)
   const config = {
-    type: "line",
+    type: 'line',
     data: {
       labels: x,
       datasets: [
         {
-          label: "Price",
+          label: 'Price',
           backgroundColor: COLORS.lightred,
           borderColor: COLORS.lightred,
-          fill: "start",
+          fill: 'start',
           data: y,
         },
       ],
@@ -218,9 +223,9 @@ function setupChart(chartId, current, label, map) {
               callback: function (val, index, values) {
                 return !label
                   ? val
-                  : current.type === "abs"
-                  ? "$" + toHumanizedCurrency(val)
-                  : val + "%"
+                  : current.type === 'abs'
+                  ? '$' + toHumanizedCurrency(val)
+                  : val + '%'
               },
             },
           },
@@ -232,16 +237,16 @@ function setupChart(chartId, current, label, map) {
             const val = tooltipItem.yLabel
             return !label
               ? val
-              : current.type === "abs"
-              ? "$" + toHumanizedCurrency(val)
-              : val + "%"
+              : current.type === 'abs'
+              ? '$' + toHumanizedCurrency(val)
+              : val + '%'
           },
         },
       },
     },
   }
 
-  const ctx = container.querySelector("canvas").getContext("2d")
+  const ctx = container.querySelector('canvas').getContext('2d')
   const chart = new Chart(ctx, config)
 
   function updateChart() {
@@ -254,12 +259,12 @@ function setupChart(chartId, current, label, map) {
   function dataTransform({type, duration}) {
     const data = chartData[duration]
     const {x, p} = map(data)
-    if (type === "%") {
-      const y = ["0"]
+    if (type === '%') {
+      const y = ['0']
       for (let i = 1; i < p.length; i++) {
         const a = parseFloat(p[i])
         const b = parseFloat(p[i - 1])
-        y.push(!a ? "0" : (100 * ((a - b) / a)).toFixed(2))
+        y.push(!a ? '0' : (100 * ((a - b) / a)).toFixed(2))
       }
       return {x, y}
     } else {
@@ -279,15 +284,15 @@ function hide(el) {
 }
 
 function toggle(el, show) {
-  el.classList[show ? "remove" : "add"]("hidden")
+  el.classList[show ? 'remove' : 'add']('hidden')
 }
 
 function enable(el) {
-  attr(el, "disabled", false)
+  attr(el, 'disabled', false)
 }
 
 function disable(el) {
-  attr(el, "disabled", "disabled")
+  attr(el, 'disabled', 'disabled')
 }
 
 function attr(el, attribute, val) {
@@ -300,30 +305,33 @@ function attr(el, attribute, val) {
 
 async function requireWeb3(addr) {
   if (!window.ethereum) {
-    const e = new Error("Please install Metamask browser extension.")
-    sl("error", e)
+    const e = new Error('Please install Metamask browser extension.')
+    sl('error', e)
     throw e
   }
   if (addr && !address) {
-    const [addr] = await ethereum.request({method: "eth_requestAccounts"})
+    const [addr] = await ethereum.request({method: 'eth_requestAccounts'})
     setAddress(addr)
   }
 }
 
 function completeBootLoader() {
-  document.documentElement.classList.remove("loading")
+  document.documentElement.classList.remove('loading')
   loaderContainer.remove()
   show(rootContainer)
 }
 
-function toHumanizedNumber(val) {
-  return val.toLocaleString("en-US", {maximumFractionDigits: 2, minimumFractionDigits: 2})
-}
+// function toHumanizedNumber(val) {
+//   return val.toLocaleString('en-US', {
+//     maximumFractionDigits: 2,
+//     minimumFractionDigits: 2,
+//   })
+// }
 
 function toHumanizedCurrency(val) {
-  return new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"})
+  return new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'})
     .format(val)
-    .replace("$", "")
+    .replace('$', '')
 }
 
 function bn(n) {
@@ -333,11 +341,11 @@ function bn(n) {
 function toHumanizedDuration(ms) {
   const dur = {}
   const units = [
-    {label: "ms", mod: 1000},
-    {label: "s", mod: 60},
-    {label: "m", mod: 60},
-    {label: "h", mod: 24},
-    {label: "d", mod: 31},
+    {label: 'ms', mod: 1000},
+    {label: 's', mod: 60},
+    {label: 'm', mod: 60},
+    {label: 'h', mod: 24},
+    {label: 'd', mod: 31},
     // {label: "w", mod: 7},
   ]
   units.forEach(function (u) {
@@ -346,16 +354,16 @@ function toHumanizedDuration(ms) {
   return units
     .reverse()
     .filter(function (u) {
-      return u.label !== "ms" // && dur[u.label]
+      return u.label !== 'ms' // && dur[u.label]
     })
     .map(function (u) {
       let val = dur[u.label]
-      if (u.label === "m" || u.label === "s") {
-        val = val.toString().padStart(2, "0")
+      if (u.label === 'm' || u.label === 's') {
+        val = val.toString().padStart(2, '0')
       }
       return val + u.label
     })
-    .join(":")
+    .join(':')
 }
 
 async function sleep(ms) {
@@ -372,18 +380,21 @@ function sl(type, msg) {
 }
 
 function getBurntAmount() {
-  return contracts.rebasedV2.read("balanceOf", ["0x000000000000000000000000000000000000dead"]);
+  return contracts.rebasedV2.read('balanceOf', [
+    '0x000000000000000000000000000000000000dead',
+  ])
 }
 
 async function api(method, endpoint, data) {
   NProgress.start()
   NProgress.set(0.4)
 
-  endpoint = (~window.location.href.indexOf("local")
-  ? "http://localhost:5050"
-  : "https://rebased.fi/api") + endpoint;
+  endpoint =
+    (~window.location.href.indexOf('local')
+      ? 'http://localhost:5050'
+      : 'https://rebased.fi/api') + endpoint
 
-  return xhr(method, endpoint, data);
+  return xhr(method, endpoint, data)
 }
 
 async function xhr(method, endpoint, data) {
@@ -396,8 +407,8 @@ async function xhr(method, endpoint, data) {
       opts.method = method.toUpperCase()
       opts.body = JSON.stringify(data)
       opts.headers = {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       }
     }
     const res = await fetch(endpoint, opts)

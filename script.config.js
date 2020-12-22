@@ -4,7 +4,7 @@ const CONTRACTS = {
   rebasedOracle: "0x6680fa0e206ae96c0f852dbe5438b916580c272d",
 }
 
-const INFURA = "90b4177113144a0c82b2b64bc01950e1"
+const WEB3_PROVIDER = "https://bsc-dataseed1.binance.org:443"
 
 const COLORS = {
   red: '#e13833',
