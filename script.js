@@ -392,7 +392,7 @@ async function api(method, endpoint, data) {
   endpoint =
     (~window.location.href.indexOf('local')
       ? 'http://localhost:5050'
-      : 'https://rebased.fi/api') + endpoint
+      : 'https://rebased.finance/api') + endpoint
 
   return xhr(method, endpoint, data)
 }
