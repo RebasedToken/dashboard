@@ -2,9 +2,7 @@ function registerWeb3() {
   window.WEB3 = new Web3(
     window.ethereum
       ? window.web3.currentProvider
-      : new Web3.providers.HttpProvider(
-        WEB3_PROVIDER
-        )
+      : new Web3.providers.HttpProvider(WEB3_PROVIDER)
   )
 }
 
@@ -15,7 +13,7 @@ function sleep(ms) {
 class Contract {
   async setContract(name, address) {
     this.address = address
-    const abi = await xhr("get", "abis/" + name + ".json")
+    const abi = await xhr('get', 'abis/' + name + '.json')
     this.contract = new window.WEB3.eth.Contract(abi, this.address)
   }
 
@@ -37,7 +35,7 @@ class Contract {
       if (this.account) {
         options.from = this.account
       }
-      this.contract.methods[method](...args)[write ? "send" : "call"](
+      this.contract.methods[method](...args)[write ? 'send' : 'call'](
         options,
         (err, response) => {
           if (err) {
@@ -83,10 +81,10 @@ function waitForTxnPromise(txHash, interval) {
     return sequentialPromise(
       txHash.map((oneTxHash) => () => waitForTxnPromise(oneTxHash, interval))
     )
-  } else if (typeof txHash === "string") {
+  } else if (typeof txHash === 'string') {
     return transactionReceiptRetry()
   } else {
-    throw new Error("Invalid Type: " + txHash)
+    throw new Error('Invalid Type: ' + txHash)
   }
 }
 
